@@ -30,7 +30,7 @@ class Universe{
     }
 
     describe(){
-        var str = ""
+        let str = ""
         for (let c of this.ground) {
             for (let n of c){
                 if (n === 0){
