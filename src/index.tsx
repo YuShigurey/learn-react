@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import GitHubCalendar from "./utils/github-calendar"
+// import GitHubCalendar from "../remvd/utils/github-calendar"
 import './index.css';
 // import App from './App';
 import App from './MyApp';
@@ -15,8 +15,10 @@ root.render(
   </React.StrictMode>
 );
 
+console.log(root)
+
 // region --- render calendar
-GitHubCalendar(".calendar", "YuShigurey", { responsive: true })
+// GitHubCalendar(".calendar", "YuShigurey", { responsive: true })
 // endregion
 
 // If you want to start measuring performance in your app, pass a function

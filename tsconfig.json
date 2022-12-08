@@ -22,5 +22,13 @@
   },
   "include": [
     "src"
-  ]
+  ],
+//  "compilerOptions": {
+//    "baseUrl": ".",
+//    "paths": {
+//      "@": ["./src"],
+//      "@/*": ["./src/*"],
+//      "@components": ["./src/components"]
+//    }
+//  }
 }
