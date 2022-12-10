@@ -5,6 +5,14 @@ import {Structure3Refined} from "../../pages/sourceType"
 import {useCursor} from "@react-three/drei";
 import {useThree} from "@react-three/fiber";
 import {DoubleSide} from "three";
+import {Simulate} from "react-dom/test-utils";
+import error = Simulate.error;
+import {button, useControls} from "leva";
+
+const hide = button(
+    () => console.log("NotImplemented!!"),
+    {disabled: true}
+)
 
 // @ts-ignore
 export default function SpawnStandardPolygon({structureInfo, forceAlpha1, hooks, ...props}) {
@@ -16,6 +24,12 @@ export default function SpawnStandardPolygon({structureInfo, forceAlpha1, hooks,
     const { SetInformation } = hooks;
     // console.log(structureInfo.mesh_order)
     // console.log("camera", camera.position)
+    useControls(
+        "Modify", () => ({
+            hide: hide
+        })
+    )
+
 
     useCursor(hovered)
 
@@ -23,8 +37,13 @@ export default function SpawnStandardPolygon({structureInfo, forceAlpha1, hooks,
     const { alpha: stAlpha, color, verticesFor3: _vertices} = info;
     let vertices
     let count = 0
+
+    let [xC, yC, zC] = [0, 0, 0]
+
+    let overrideX : number | null, overrideY : number | null, overrideZ : number | null
     switch (viewMode) {
         case "XY":
+            overrideZ = camera.position.z;
             vertices = _vertices.map((v, i) => {
                 if (i % 3 === 2) {
                     if (v > camera.position.z-1e-10) {
@@ -36,6 +55,7 @@ export default function SpawnStandardPolygon({structureInfo, forceAlpha1, hooks,
             });
             break;
         case "XZ":
+            overrideY = camera.position.y;
             vertices = _vertices.map((v, i)=>{
                 if (i % 3 === 1) {
                     if (v > camera.position.y-1e-10) {
@@ -48,6 +68,7 @@ export default function SpawnStandardPolygon({structureInfo, forceAlpha1, hooks,
             });
             break;
         case "YZ":
+            overrideX = camera.position.x;
             vertices = _vertices.map((v, i)=>{
                 if (i % 3 === 0) {
                     if (v > camera.position.x-1e-10) {
@@ -63,10 +84,25 @@ export default function SpawnStandardPolygon({structureInfo, forceAlpha1, hooks,
             vertices = _vertices
             break;
     }
-    if (count === vertices.length/3) {
-        // console.log("skipped", structureInfo.name)
-        return <></>
-    }
+    // if (count === vertices.length/3) {
+    //     // console.log("skipped", structureInfo.name)
+    //     return <></>
+    // }
+    _vertices.forEach((e, i) => {
+        if (i % 3 === 0) xC+=e
+        else if (i % 3 === 1) yC+=e
+        else if (i % 3 === 2) zC+=e
+    })
+    let [xCenter, yCenter, zCenter] = [xC, yC, zC].map((e) => e * 3 /vertices.length)
+    vertices = vertices.map((e, i) => {
+        if (i % 3 === 0) return e - xCenter
+        else if (i % 3 === 1) return e - yCenter
+        else if (i % 3 === 2) return e - zCenter
+        else {
+            console.error(i, " i % 3 not in [0, 1, 2], impossible.")
+            return e
+        }
+    })
 
     let alpha: number
 
@@ -76,31 +112,31 @@ export default function SpawnStandardPolygon({structureInfo, forceAlpha1, hooks,
         alpha = forceAlpha1;
     }
 
-
     // const geometry = new BufferGeometry()
     // geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
     // const material = new THREE.MeshBasicMaterial( { color: 0xff0000, transparent:true, opacity:0.5, side: DoubleSide} );
     // const mesh = new THREE.Mesh( geometry, material );
     // return <primitive object={mesh} position={[0, 0, 0]} />
 
-
     // FIXME: This method is better, but I failed figure out how to make it working
 
     return (
         <mesh
             {...props}
+            position={ [xCenter, yCenter, zCenter] }
             onClick={(e) => {
                 setTarget(e.object);
+                hide.settings.disabled = false;
                 setClicked(!clicked);
                 SetInformation({
-                    "Cursor Position": {
-                        x: e.point.x,
-                        y: e.point.y,
-                        z: e.point.z
+                    "cursor pos": {
+                        x: overrideX ?? e.point.x,
+                        y: overrideY ?? e.point.y,
+                        z: overrideZ ?? e.point.z
                     }
                 });
             }
-        }
+            }
             // onPointerOver={() => setHovered(true)}
             // onPointerOut={() => setHovered(false)}
         >

@@ -1,4 +1,5 @@
 import create from "zustand";
+import {button} from "leva";
 
 const useStore = create(
     (set: any) => (
@@ -6,7 +7,8 @@ const useStore = create(
             target: null,
             setTarget: (target: any) => set({ target }),
             viewMode: "3D",
-            setViewMode: (viewMode: string) => set({ viewMode })
+            setViewMode: (viewMode: string) => set({ viewMode }),
+
         }
     )
 )

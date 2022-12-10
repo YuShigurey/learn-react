@@ -19,13 +19,14 @@ export const structures = _structures.map((e, _) => {
     }
     return ret
 })
-    // .sort((a, b)=>(a.mesh_order-b.mesh_order))
+// .sort((a, b)=>(a.mesh_order-b.mesh_order))
 
 export const otherComponents = _otherComponents.map((o, _) => ({
     points: get8Points(o),
     type: o.type
 }))
 
+export const usedTypes = otherComponents.map(e => e.type)
 
 
 

@@ -1,13 +1,12 @@
+import useStore from "./stored"
+import SpawnStandardPolygon from "../components/three/StandardPolygon";
+import {Vector3} from "three";
+import SpawnComponentLineHelper from "../components/three/LineHelper";
 import React, { useRef, useState} from 'react'
 import {Canvas, useFrame } from '@react-three/fiber'
 import {OrbitControls, TransformControls} from '@react-three/drei'
-import {button, useControls} from 'leva'
-import useStore from "./stored"
-import SpawnStandardPolygon from "../components/three/StandardPolygon";
-import { structures, otherComponents } from "./readSource"
-import {Vector3} from "three";
-import {match} from "assert";
-import SpawnComponentLineHelper from "../components/three/LineHelper";
+import {button, folder, useControls, Leva} from 'leva'
+import { structures, otherComponents, usedTypes } from "./readSource"
 
 export default function Scene() {
     const { target, setTarget, viewMode, setViewMode } = useStore()
@@ -37,18 +36,19 @@ export default function Scene() {
                 },
                 transient: false
             },
-            lookAt: {
-                value: {
-                    x: lookAt.x,
-                    y: lookAt.y,
-                    z: lookAt.z,
-                },
-                onChange: (v) => {
-                },
-                transient: false
-            },
-            "reset look at" : button(() => {
-                setLookAt(new Vector3(lookAt.x, lookAt.y, lookAt.z))
+            // lookAt: {
+            //     value: {
+            //         x: lookAt.x,
+            //         y: lookAt.y,
+            //         z: lookAt.z,
+            //     },
+            //     onChange: (v) => {
+            //     },
+            //     transient: false
+            // },
+            "reset look at (0,0,0)" : button(() => {
+                // setLookAt(new Vector3(lookAt.x, lookAt.y, lookAt.z))
+                setLookAt(new Vector3(0,0,0))
                 setLerping(true)
             })
         })
@@ -60,12 +60,12 @@ export default function Scene() {
     const [c, ] = useControls(
         'Control',
         () => ({
-            Mode: { value: 'translate', options: ['translate', 'rotate', 'scale'] } ,
-            Alpha: { value: 'use material', options: ['use material', 'force as 1', 'force as 0.2']},
-            "Show Grid": {
-                value: 'No',
-                options: ['Yes', 'No']
-            },
+            mode: { value: 'translate', options: ['translate', 'rotate', 'scale'] } ,
+            alpha: { value: 'use material', options: ['use material', 'force as 1', 'force as 0.2']},
+            // "Show Grid": {
+            //     value: 'No',
+            //     options: ['Yes', 'No']
+            // },
             "View Mode": {
                 value: '3D',
                 options: ['3D', 'XY', 'YZ', 'XZ'],
@@ -79,8 +79,8 @@ export default function Scene() {
     // @ts-ignore
     const mode: "scale" | "translate" | "rotate" = c.mode
     // @ts-ignore
-    const showGrid = c["Show Grid"];
-    const alpha = c.Alpha
+    // const showGrid = c["Show Grid"];
+    const alpha = c.alpha
     let forceAlpha1: number
     if (alpha === "force as 1") {
         forceAlpha1 = 1
@@ -91,9 +91,9 @@ export default function Scene() {
     if (
         controlSource === "Panel" && (
             Math.abs(lookFrom.x - cameraPosition.x) > 1e-6
-        || Math.abs(lookFrom.y - cameraPosition.y) > 1e-6
-        || Math.abs(lookFrom.z - cameraPosition.z) > 1e-6
-        || lastViewMode !== viewMode
+            || Math.abs(lookFrom.y - cameraPosition.y) > 1e-6
+            || Math.abs(lookFrom.z - cameraPosition.z) > 1e-6
+            || lastViewMode !== viewMode
         )
     ) {
         setLastViewMode(viewMode)
@@ -101,20 +101,33 @@ export default function Scene() {
         setLerping(true)
     }
 
-    const [, SetInformation] = useControls(
+
+    const colors = {}
+    const presetColors = {
+        FDTD: "#000000",
+        EME: "#FFFFFF"
+    }
+    // @ts-ignore
+    usedTypes.forEach(e=>{colors[e]=presetColors[e] ?? "#FFFFFF"})
+
+    const [info, SetInformation] = useControls(
         'Information',
         () => ({
-                "Cursor Position": {
-                    x: 0,
-                    y: 0,
-                    z: 0,
-                }
+            "cursor pos": {
+                x: 0,
+                y: 0,
+                z: 0,
+            },
+            colorSettings: folder(
+                colors,
+                {"collapsed": true}
+            )
         })
     )
 
-    console.log(target)
     return (
         <div style={{ width: "100vw", height: "100vh" }}>
+            <Leva isRoot />
             <Canvas
                 dpr={[2, 2]}
                 onPointerDown={() => setLerping(false)}
@@ -127,21 +140,23 @@ export default function Scene() {
                 <OrbitControls
                     ref={ref}
                     target={lookAt}
+                    enableRotate={viewMode==="3D"}
+                    enableDamping={false}
                     onChange={(e)=>
-                        {
-                            if (controlSource==="GUI" && !target)
-                                if (e !== undefined ){
-                                    let camera = e.target.object
-                                    cameraSet({
-                                            position: {
-                                                x: camera.position.x,
-                                                y: camera.position.y,
-                                                z: camera.position.z,
-                                            },
-                                        })
-                                    setLookFrom(new Vector3(camera.position.x, camera.position.y, camera.position.z))
-                                }
-                        }
+                    {
+                        if (controlSource==="GUI" && !target)
+                            if (e !== undefined ){
+                                let camera = e.target.object
+                                cameraSet({
+                                    position: {
+                                        x: camera.position.x,
+                                        y: camera.position.y,
+                                        z: camera.position.z,
+                                    },
+                                })
+                                setLookFrom(new Vector3(camera.position.x, camera.position.y, camera.position.z))
+                            }
+                    }
                     }
                     onStart={(e) => {
                         setFreezeControlSource(true)
@@ -165,6 +180,7 @@ export default function Scene() {
                     // zoom={lookZoom}
                     forceAlpha1={forceAlpha1}
                     hooks={{SetInformation}}
+                    info={info}
                 />
                 {/*{(showGrid==="Yes")? <CreateAxs/>: null}*/}
                 {/*<axesHelper args={[10]}/>*/}
@@ -177,7 +193,7 @@ export default function Scene() {
 
 
 // @ts-ignore
-function Arena({ controls, cameraOf, lerping, setLerping, lookFrom, lookAt, hooks:{SetInformation}, forceAlpha1}) {
+function Arena({ controls, cameraOf, lerping, setLerping, lookFrom, lookAt, hooks:{SetInformation}, forceAlpha1, info}) {
     const [cameraC, cameraSet] = cameraOf
     const { viewMode } = useStore()
     const { position: cameraPosition, zoom: cameraZoom} = cameraC
@@ -210,7 +226,6 @@ function Arena({ controls, cameraOf, lerping, setLerping, lookFrom, lookAt, hook
 
             // camera2.rotation.set(...camera.rotation)
             // camera2.up.set(camera.up.x, camera.up.y, camera.up.z)
-
         }
     })
     return (
@@ -227,11 +242,11 @@ function Arena({ controls, cameraOf, lerping, setLerping, lookFrom, lookAt, hook
             {
                 otherComponents.map(
                     (s, i) => <SpawnComponentLineHelper
+                        info={info}
                         compInfo={s}
                         key={i} />
                 ).filter((e) => e)
             }
         </>
     )
-
 }

@@ -6,7 +6,7 @@ import {useCursor} from "@react-three/drei";
 import {DoubleSide} from "three";
 
 // @ts-ignore
-export default function SpawnComponentLineHelper({compInfo, ...props}) {
+export default function SpawnComponentLineHelper({compInfo, info: colorInfo, ...props}) {
     const setTarget = useStore((state) => state.setTarget)
     const { viewMode } = useStore()
     const [clicked, setClicked] = useState(false)
@@ -17,6 +17,10 @@ export default function SpawnComponentLineHelper({compInfo, ...props}) {
     const info: OtherComponentRefined = compInfo
     const { points, type } = info;
 
+    let color
+    console.log(type)
+    color = colorInfo[type] ?? "#FFFFFF"
+
     const rearrange = (arr: Float32Array, ...idxs: number[]) => {
         let ret = []
         for (let idx of idxs) {
@@ -26,7 +30,7 @@ export default function SpawnComponentLineHelper({compInfo, ...props}) {
     }
     let lines = new Float32Array(
         [
-            ...points.map((e)=>e),
+            ...points,
             ...rearrange(points, 0, 3, 1, 2, 4, 7, 5, 6),
             ...rearrange(points, 0, 4, 1, 5, 2, 6, 3, 7),
         ]
@@ -45,8 +49,8 @@ export default function SpawnComponentLineHelper({compInfo, ...props}) {
                         itemSize={3}
                     />
                 </bufferGeometry>
+                <lineBasicMaterial transparent color={color} linewidth={1} side={DoubleSide}/>
             </lineSegments >
-            <lineBasicMaterial transparent color={`#FFFFFF`}/>
         </mesh>
     )
 }
