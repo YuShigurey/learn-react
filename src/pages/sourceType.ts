@@ -77,6 +77,6 @@ export function get8Points(o: OtherComponent): Float32Array{
     ])
     geometry.setAttribute( 'position', new BufferAttribute( vertices, 3 ) );
     geometry.applyMatrix4(traMat).applyMatrix4(rotMat).applyMatrix4(traBackMat)
-    let points = geometry.getAttribute('position').array
-    return <Float32Array>points
+    let points: Float32Array = new Float32Array(geometry.getAttribute('position').array)
+    return points
 }

@@ -23,7 +23,12 @@ export default function App() {
     // );
 
     return (
+        <>
+            {/*<TreeWrapper tree={*/}
+            {/*    {"HHH": { __levaInput: true, path: "HHH" }}*/}
+            {/*} toggled={true} />*/}
         <ThreeScene />
+        </>
     );
 }
 

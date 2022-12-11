@@ -1,5 +1,4 @@
 import React, {useState} from "react";
-import useStore from "../../pages/stored"
 // import {MeshStandardMaterial, DoubleSide, BufferGeometry} from "three";
 import {OtherComponentRefined} from "../../pages/sourceType"
 import {useCursor} from "@react-three/drei";
@@ -7,10 +6,10 @@ import {DoubleSide} from "three";
 
 // @ts-ignore
 export default function SpawnComponentLineHelper({compInfo, info: colorInfo, ...props}) {
-    const setTarget = useStore((state) => state.setTarget)
-    const { viewMode } = useStore()
-    const [clicked, setClicked] = useState(false)
-    const [hovered, setHovered] = useState(false)
+    // const setTarget = useStore((state) => state.setTarget)
+    // const { viewMode } = useStore()
+    // const [clicked, setClicked] = useState(false)
+    const [hovered, ] = useState(false)
 
     useCursor(hovered)
 
@@ -18,7 +17,6 @@ export default function SpawnComponentLineHelper({compInfo, info: colorInfo, ...
     const { points, type } = info;
 
     let color
-    console.log(type)
     color = colorInfo[type] ?? "#FFFFFF"
 
     const rearrange = (arr: Float32Array, ...idxs: number[]) => {

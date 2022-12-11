@@ -1,12 +1,11 @@
 import useStore from "./stored"
-import SpawnStandardPolygon from "../components/three/StandardPolygon";
 import {Vector3} from "three";
-import SpawnComponentLineHelper from "../components/three/LineHelper";
-import React, { useRef, useState} from 'react'
-import {Canvas, useFrame } from '@react-three/fiber'
+import React, {useRef, useState} from 'react'
+import {Canvas} from '@react-three/fiber'
 import {OrbitControls, TransformControls} from '@react-three/drei'
-import {button, folder, useControls, Leva} from 'leva'
-import { structures, otherComponents, usedTypes } from "./readSource"
+import {button, folder, Leva, useControls} from 'leva'
+import {usedTypes} from "./readSource"
+import {Arena} from "../components/three/Arena";
 
 export default function Scene() {
     const { target, setTarget, viewMode, setViewMode } = useStore()
@@ -18,7 +17,7 @@ export default function Scene() {
     // const [lookZoom, setLookZoom] = useState(5)
     const [lastViewMode, setLastViewMode] = useState("3D")
     const [controlSource, setControlSource] = useState("GUI")
-    const [freezeControlSource, setFreezeControlSource] = useState(false)
+    const [, setFreezeControlSource] = useState(false)
 
     const [cameraC, cameraSet] = useControls(
         'Camera',
@@ -84,6 +83,8 @@ export default function Scene() {
     let forceAlpha1: number
     if (alpha === "force as 1") {
         forceAlpha1 = 1
+    } else if (alpha === "force as 0.2") {
+        forceAlpha1 = 0.2
     } else {
         forceAlpha1 = -1
     }
@@ -127,7 +128,7 @@ export default function Scene() {
 
     return (
         <div style={{ width: "100vw", height: "100vh" }}>
-            <Leva isRoot />
+
             <Canvas
                 dpr={[2, 2]}
                 onPointerDown={() => setLerping(false)}
@@ -144,7 +145,7 @@ export default function Scene() {
                     enableDamping={false}
                     onChange={(e)=>
                     {
-                        if (controlSource==="GUI" && !target)
+                        if (controlSource==="GUI")
                             if (e !== undefined ){
                                 let camera = e.target.object
                                 cameraSet({
@@ -192,61 +193,3 @@ export default function Scene() {
 }
 
 
-// @ts-ignore
-function Arena({ controls, cameraOf, lerping, setLerping, lookFrom, lookAt, hooks:{SetInformation}, forceAlpha1, info}) {
-    const [cameraC, cameraSet] = cameraOf
-    const { viewMode } = useStore()
-    const { position: cameraPosition, zoom: cameraZoom} = cameraC
-    const PI = Math.PI
-
-    useFrame(({ camera }, delta) => {
-        if (lerping) {
-            camera.position.lerp(lookFrom, 1)
-
-            let _lookAt
-            const camera2 = controls.current.object
-            if (viewMode === "XY") {
-                _lookAt = new Vector3(cameraPosition.x, cameraPosition.y, cameraPosition.z - 10)
-                // camera.rotation.set(0, 0, 0)
-                controls.current.target.lerp(_lookAt, 1)
-                camera.up.set(0, 0, -1)
-            } else if (viewMode === "XZ") {
-                _lookAt = new Vector3(cameraPosition.x, cameraPosition.y + 10, cameraPosition.z)
-                // camera.rotation.set(0, PI/2, PI/2)
-                controls.current.target.lerp(_lookAt, 1)
-                camera.up.set(0, 1, 0)
-            } else if (viewMode === "YZ") {
-                _lookAt = new Vector3(cameraPosition.x - 10, cameraPosition.y, cameraPosition.z)
-                // camera.rotation.set(-PI/2, 0, 0)
-                controls.current.target.lerp(_lookAt, 1)
-                camera.up.set(1, 0, 1)
-            } else {
-                // controls.current.target.lerp(lookAt, 0.5)
-            }
-
-            // camera2.rotation.set(...camera.rotation)
-            // camera2.up.set(camera.up.x, camera.up.y, camera.up.z)
-        }
-    })
-    return (
-        <>
-            {
-                structures.map(
-                    (s, i) => <SpawnStandardPolygon
-                        forceAlpha1={forceAlpha1}
-                        structureInfo={s}
-                        hooks={{SetInformation}}
-                        key={i} />
-                ).filter((e) => e)
-            }
-            {
-                otherComponents.map(
-                    (s, i) => <SpawnComponentLineHelper
-                        info={info}
-                        compInfo={s}
-                        key={i} />
-                ).filter((e) => e)
-            }
-        </>
-    )
-}

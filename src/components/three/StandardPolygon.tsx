@@ -5,8 +5,6 @@ import {Structure3Refined} from "../../pages/sourceType"
 import {useCursor} from "@react-three/drei";
 import {useThree} from "@react-three/fiber";
 import {DoubleSide} from "three";
-import {Simulate} from "react-dom/test-utils";
-import error = Simulate.error;
 import {button, useControls} from "leva";
 
 const hide = button(
@@ -20,7 +18,7 @@ export default function SpawnStandardPolygon({structureInfo, forceAlpha1, hooks,
     const { viewMode } = useStore()
     const { camera } = useThree()
     const [clicked, setClicked] = useState(false)
-    const [hovered, setHovered] = useState(false)
+    const [hovered, ] = useState(false)
     const { SetInformation } = hooks;
     // console.log(structureInfo.mesh_order)
     // console.log("camera", camera.position)
@@ -117,8 +115,6 @@ export default function SpawnStandardPolygon({structureInfo, forceAlpha1, hooks,
     // const material = new THREE.MeshBasicMaterial( { color: 0xff0000, transparent:true, opacity:0.5, side: DoubleSide} );
     // const mesh = new THREE.Mesh( geometry, material );
     // return <primitive object={mesh} position={[0, 0, 0]} />
-
-    // FIXME: This method is better, but I failed figure out how to make it working
 
     return (
         <mesh
